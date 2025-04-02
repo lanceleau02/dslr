@@ -11,6 +11,9 @@ def scatter_plot(datafile):
 		"Slytherin": "green"
 	}
 
+	""" correlation = df.groupby("")[["Herbology", "Defense Against the Dark Arts"]].corr()
+	print(f"Pearson Correlation: {correlation:.2f}") """
+
 	# Compute the correlation matrix (absolute values to consider both positive and negative correlations)
 	correlation_matrix = df.corr(numeric_only=True)
 
