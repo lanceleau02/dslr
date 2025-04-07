@@ -11,9 +11,6 @@ def scatter_plot(datafile):
 		"Slytherin": "green"
 	}
 
-	""" correlation = df.groupby("")[["Herbology", "Defense Against the Dark Arts"]].corr()
-	print(f"Pearson Correlation: {correlation:.2f}") """
-
 	# Compute the correlation matrix (absolute values to consider both positive and negative correlations)
 	correlation_matrix = df.corr(numeric_only=True)
 
@@ -25,8 +22,22 @@ def scatter_plot(datafile):
 	most_similar = np.unravel_index(np.argmax(correlation_matrix.values), correlation_matrix.shape)
 
 	# Retrieve the corresponding feature names
-	feature_1, feature_2 = df.columns[most_similar[0]], df.columns[most_similar[1]]
-
+	feature_1, feature_2 = str(df.columns[most_similar[0]]), str(df.columns[most_similar[1]])
+	print(f"Most similar features: {feature_1} vs {feature_2} (correlation: {correlation_matrix.iloc[most_similar]:.2f})")
+	
+	with open("./data/correlation_matrix.txt", "w") as f:
+		f.write(correlation_matrix.to_string())
+	
+	# Loop through houses
+	for house, group in df.groupby("Hogwarts House"):
+		herbology = group[feature_1]
+		dark_arts = group[feature_2]
+		
+		# Type hint to keep Pyright happy
+		if isinstance(herbology, pd.Series) and isinstance(dark_arts, pd.Series):
+			corr = herbology.corr(dark_arts)
+			print(f"{house}: {corr:.2f}")
+	
 	# Plot the scatter plot of the two most similar features
 	plt.figure(figsize=(8, 6))
 	for house, color in house_colors.items():
@@ -35,6 +46,7 @@ def scatter_plot(datafile):
 	plt.xlabel(feature_1)
 	plt.ylabel(feature_2)
 	plt.title(f"Scatter Plot: {feature_1} vs {feature_2}")
+	plt.legend()
 	plt.grid(True)
 	plt.show()
 
