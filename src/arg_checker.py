@@ -1,9 +1,14 @@
+import sys
+
 import pandas as pd
 
 from utils import print_error
 
-def check_args(args):
+
+def check_args():
     """ check the arguments """
+
+    args = sys.argv[1:]
 
     if len(args) != 1:
         print_error("Usage : python describe.py <csv file>")

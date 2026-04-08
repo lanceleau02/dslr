@@ -1,42 +1,53 @@
-from src import sys, pd, np
-
 from arg_checker import check_args
-
+from src import pd, np
 from src.utils import sum_, sort_, mean_, std_, min_, max_, percentile_
 
+
 def describe(dataset):
-	df = check_args(dataset)
-	df = df.loc[:, df.columns != 'Index']
-	stats = {}
-	for col in df.columns:
-		if df[col].dtype in [np.float64, np.int64]:
-			data = df[col].dropna().values
-			n = sum_(1 for _ in data)
-			sorted_data = sort_(data)
-			if (n == 0):
-				continue
-			mean = mean_(data)
-			std = std_(data)
-			min = min_(data)
-			max = max_(data)
-			q25 = percentile_(sorted_data, 0.25)
-			q50 = percentile_(sorted_data, 0.50)
-			q75 = percentile_(sorted_data, 0.75)
-			
-			stats[col] = {
-				"Count": n,
-				"Mean": mean,
-				"Std": std,
-				"Min": min,
-				"25%": q25,
-				"50%": q50,
-				"75%": q75,
-				"Max": max
-			}
-	print(pd.DataFrame(stats))
+    """
+    Analyzes the dataset to compute basic statistical metrics for numeric
+    columns, ignoring any non-numeric columns or missing values.
+
+    :param dataset: A dataset input.
+    :return: None.
+    """
+    df = dataset.loc[:, dataset.columns != 'Index']
+    stats = {}
+    for col in df.columns:
+
+        # If the column is not numeric, skip it
+        if df[col].dtype not in [np.float64, np.int64]:
+            continue
+
+        data = df[col].dropna().values
+
+        n = sum_(1 for _ in data)
+        if n == 0:
+            continue
+
+        sorted_data = sort_(data)
+
+        stats[col] = {
+            "Count": n,
+            "Mean":  mean_(data),
+            "Std":   std_(data),
+            "Min":   min_(data),
+            "25%":   percentile_(sorted_data, 0.25),
+            "50%":   percentile_(sorted_data, 0.50),
+            "75%":   percentile_(sorted_data, 0.75),
+            "Max":   max_(data)
+        }
+    print(pd.DataFrame(stats))
+
 
 def main():
-	describe(sys.argv[1:])
+    """
+    Main entry point of the script that processes command-line arguments
+    and describes a dataset.
+    """
+    dataset = check_args()
+    describe(dataset)
+
 
 if __name__ == "__main__":
-	main()
+    main()
