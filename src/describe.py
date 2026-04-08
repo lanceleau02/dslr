@@ -1,7 +1,9 @@
 from src import sys, pd, np
+from arg_checker import check_args
+
 
 def describe(dataset):
-	df = pd.read_csv(dataset)
+	df = check_args(dataset)
 	df = df.loc[:, df.columns != 'Index']
 	stats = {}
 	for col in df.columns:
@@ -33,10 +35,7 @@ def describe(dataset):
 	print(pd.DataFrame(stats))
 
 def main():
-	if len(sys.argv) != 2:
-		print("Usage: python3 describe.py <dataset>")
-		sys.exit(1)
-	describe(sys.argv[1])
+	describe(sys.argv[:1])
 
 if __name__ == "__main__":
 	main()

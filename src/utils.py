@@ -14,3 +14,12 @@ def mean(array, axis: Optional[Literal[0, 1]] = None):
     :return: the Mean value.
     """
 
+def print_error(msg):
+    """
+    Print the error message precede by [Error] then exit the program.
+
+    :param msg:
+    :return:
+    """
+    print(f"[Error] {msg}")
+    exit(1)
