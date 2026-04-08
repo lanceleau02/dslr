@@ -66,3 +66,13 @@ def percentile_(sorted_array, percent):
         return sorted_array[f]
     weight = k - f
     return sorted_array[f] + weight * (sorted_array[c] - sorted_array[f])
+
+def print_error(msg):
+    """
+    Print the error message precede by [Error] then exit the program.
+
+    :param msg:
+    :return:
+    """
+    print(f"[Error] {msg}")
+    exit(1)
