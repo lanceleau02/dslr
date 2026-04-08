@@ -1,65 +1,38 @@
-from src import pd, plt, np
+import pandas as pd
+import matplotlib.pyplot as plt
+import math
 
-def histogram(dataset):
-	# Load dataset
-	df = pd.read_csv(dataset)  # Replace with your actual file
+def plot_histogram(df, feature, ax):
+    houses = df['Hogwarts House'].dropna().unique()
+    
+    for house in houses:
+        house_data = df[df['Hogwarts House'] == house][feature].dropna()
+        ax.hist(house_data, bins=25, alpha=0.5, label=house)
 
-	# Identify numerical columns (excluding "Hogwarts House" and non-numeric columns)
-	courses = df.select_dtypes(include=["number"]).columns
-	courses = [col for col in courses if col.lower() != "index"]  # Exclude "Index" if present
-
-	# Define house colors
-	house_colors = {
-		"Gryffindor": "red",
-		"Hufflepuff": "yellow",
-		"Ravenclaw": "blue",
-		"Slytherin": "green"
-	}
-
-	# Determine grid size (rows x cols)
-	num_courses = len(courses)
-	cols = min(3, num_courses)  # Maximum of 3 columns
-	rows = int(np.ceil(num_courses / cols))  # Adjust rows dynamically
-
-	# Create a large figure
-	fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 4))  # Adjust figure size
-
-	# Flatten axes array for easy iteration (handles single-row cases)
-	axes = np.array(axes).flatten()
-
-	# Plot each course in its respective subplot
-	for i, course in enumerate(courses):
-		ax = axes[i]
-		for house, color in house_colors.items():
-			house_data = df[df["Hogwarts House"] == house][course].dropna()
-			ax.hist(house_data, bins=20, alpha=1.0, color=color, density=True)
-
-		# Customize each subplot
-		ax.set_title(course)
-		ax.set_xlabel("Score")
-		ax.set_ylabel("Density")
-		ax.grid(True)
-
-	# Remove empty subplots (if any)
-	for i in range(num_courses, len(axes)):
-		fig.delaxes(axes[i])
-
-	# Adjust layout to prevent overlapping
-	plt.tight_layout()
-
-	# Adjust layout with more space between rows
-	plt.subplots_adjust(hspace=0.8, top=0.96, bottom=0.05)  # Increase space between rows
-
-	# Create a single legend at the bottom-right
-	handles = [plt.Rectangle((0, 0), 1, 1, color=color, alpha=1.0) for color in house_colors.values()]
-	labels = list(house_colors.keys())
-	fig.legend(handles, labels, loc="lower right", title="Hogwarts Houses", frameon=True)
-
-	# Show the plots
-	plt.show()
+    ax.set_title(feature, fontsize=10)
+    ax.tick_params(axis='both', labelsize=8)
 
 def main():
-	histogram("./data/dataset_train.csv")
+    df = pd.read_csv("data/dataset_train.csv")
+    features = [col for col in df.columns if df[col].dtype in ['float64', 'int64'] and col != 'Index']
+    
+    cols = 4
+    rows = math.ceil(len(features) / cols)
+    fig, axes = plt.subplots(rows, cols, figsize=(16, 12))
+    axes = axes.flatten()
+
+    for i, feature in enumerate(features):
+        plot_histogram(df, feature, axes[i])
+
+    for j in range(len(features), len(axes)):
+        fig.delaxes(axes[j])
+
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower right', fontsize=12, title="Hogwarts House")
+    
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.5)
+    plt.show()
 
 if __name__ == "__main__":
-	main()
+    main()

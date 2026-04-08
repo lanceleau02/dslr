@@ -1,3 +1,4 @@
+from src.arg_checker import check_args
 from src import pd, np
 from src.maths_utils import sum_, sort_, mean_, std_, min_, max_, percentile_
 from src.open_file import open_file
