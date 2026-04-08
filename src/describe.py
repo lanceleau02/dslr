@@ -1,4 +1,3 @@
-from src.arg_checker import check_args
 from src import pd, np
 from src.maths_utils import sum_, sort_, mean_, std_, min_, max_, percentile_
 from src.open_file import open_file
@@ -46,7 +45,7 @@ def main():
     Main entry point of the script that processes command-line arguments
     and describes a dataset.
     """
-    dataset = open_file()
+    dataset = open_file(drop_na=False)
     describe(dataset)
 
 

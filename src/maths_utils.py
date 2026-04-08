@@ -82,9 +82,8 @@ def min_(iterable):
     Find the smallest element in the given iterable.
 
     :param iterable: An iterable object containing comparable elements.
-    :return: The smallest element from the iterable.
+    :return: The smallest element from the iterable or None if it's empty.
     :rtype: Any
-    :raises ValueError: If the given iterable is empty.
     """
     current_min = None
     for item in iterable:
@@ -92,8 +91,6 @@ def min_(iterable):
             current_min = item
         elif item < current_min:
             current_min = item
-    if current_min is None:
-        raise ValueError("min() arg is an empty sequence")
     return current_min
 
 
@@ -102,9 +99,8 @@ def max_(iterable):
     Finds the maximum value in the provided iterable.
 
     :param iterable: An iterable containing comparable elements.
-    :return: The maximum value found in the iterable.
+    :return: The maximum value found in the iterable or None if it's empty.
     :rtype: Any
-    :raises ValueError: If the provided iterable is empty.
     """
     current_max = None
     for item in iterable:
@@ -112,8 +108,6 @@ def max_(iterable):
             current_max = item
         elif item > current_max:
             current_max = item
-    if current_max is None:
-        raise ValueError("max() arg is an empty sequence")
     return current_max
 
 

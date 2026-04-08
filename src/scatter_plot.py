@@ -19,8 +19,12 @@ def scatter_plot(df):
     """
     # Filter for numeric columns and ignore index
     numeric_df = df.select_dtypes(include=['float64', 'int64']).drop(
-        columns=['Index'])
+        columns=['Index'], errors='ignore')
     features = list(numeric_df.columns)
+
+    if not features:
+        print("No features available for scatter plot.")
+        return
 
     feature_labels = [get_abbreviation(f) for f in features]
     label_to_feature = dict(zip(feature_labels, features))
@@ -114,6 +118,9 @@ def calculate_correlation(df):
         columns=['Index'])
     features = list(numeric_df.columns)
 
+    if not features:
+        print("Most similar pair: not found (no features)")
+        return
     best_pair = None
     best_abs = -1.0
     best_val = 0.0
@@ -142,7 +149,7 @@ def main():
     Main entry point of the script. Loads data, displays the interactive
     scatter plot, and calculates feature correlations.
     """
-    df = open_file()
+    df = open_file(drop_na=True)
     scatter_plot(df)
     calculate_correlation(df)
 
