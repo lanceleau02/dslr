@@ -35,7 +35,7 @@ def describe(dataset):
 	print(pd.DataFrame(stats))
 
 def main():
-	describe(sys.argv[:1])
+	describe(sys.argv[1:])
 
 if __name__ == "__main__":
 	main()
