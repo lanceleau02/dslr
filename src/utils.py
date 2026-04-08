@@ -27,3 +27,15 @@ def check_args(args, length=1):
 
     if len(args) != length:
         print_error("Usage : python <scrip>.py <csv file>")
+
+
+def get_abbreviation(name, max_len=12):
+    """
+    Génère un sigle pour un nom s'il dépasse une certaine longueur.
+    """
+    if len(name) <= max_len:
+        return name
+    words = name.split()
+    if len(words) == 1:
+        return name[:max_len]
+    return "".join(word[0].upper() for word in words)

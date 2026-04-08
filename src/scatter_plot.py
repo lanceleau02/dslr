@@ -1,88 +1,151 @@
-from src import pd, plt, combinations
+from matplotlib.widgets import RadioButtons
 
-def all_scatter_plot(df):
-	# Select only numeric columns, excluding the 'Index' column
-	numeric_df = df.select_dtypes(include=['float64', 'int64']).drop(columns=['Index'])
-	# Get the list of numeric features/column names
-	features = numeric_df.columns
-	# Calculate total number of features
-	num_features = len(features)
-	# Calculate total number of unique feature pairs for scatter plots
-	num_plots = num_features * (num_features - 1) // 2
-	# Define layout: number of columns in the subplot grid
-	num_cols = 10
-	# Calculate required number of rows based on number of plots
-	num_rows = (num_plots + num_cols - 1) // num_cols
-	# Create subplots grid with appropriate size
-	fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, figsize=(20, 5 * num_rows))
-	# Flatten axes array for easy iteration
-	axes = axes.flatten()
-	# Get unique Hogwarts houses and define corresponding colors
-	houses = df['Hogwarts House'].unique()
-	colors = {'Gryffindor': 'red', 'Slytherin': 'green', 'Hufflepuff': 'yellow', 'Ravenclaw': 'blue'}
-	# Iterate over all unique pairs of numeric features
-	for ax, (feature1, feature2) in zip(axes, combinations(features, 2)):
-		# Plot scatter points for each house
-		for house in houses:
-			# Filter data for the current house
-			house_data = df[df['Hogwarts House'] == house]
-			# Plot the feature pair for this house
-			ax.scatter(house_data[feature1], house_data[feature2], alpha=0.5, s=3, label=house, color=colors[house])
-		# Set plot title and axis labels with small font size
-		ax.set_title(f'{feature1} vs {feature2}', fontsize=5)
-		ax.set_xlabel(feature1, fontsize=5)
-		ax.set_ylabel(feature2, fontsize=5)
-		# Add a grid for readability
-		ax.grid(True)
-	# Remove any unused subplot axes (in case there are more axes than plots)
-	for ax in axes[num_plots:]:
-		fig.delaxes(ax)
-	# Adjust spacing between subplots
-	plt.tight_layout()
-	plt.subplots_adjust(hspace=1, bottom=0.05)
-	# Display the plots
-	plt.show()
-	
+from src import plt
+from src.maths_utils import pearson_corr
+from src.open_file import open_file
+from src.utils import get_abbreviation
+
+
 def scatter_plot(df):
-	# Reuse top correlated pair
-	feature1, feature2 = 'Defense Against the Dark Arts', 'Astronomy'
-	# Plot each house with a different color
-	houses = df['Hogwarts House'].unique()
-	colors = {'Gryffindor': 'red', 'Slytherin': 'green', 'Hufflepuff': 'yellow', 'Ravenclaw': 'blue'}
-	plt.figure(figsize=(8,6))
-	for house, color in zip(houses, colors):
-		subset = df[df['Hogwarts House'] == house]
-		plt.scatter(subset[feature1], subset[feature2], label=house, alpha=0.6, color=colors[house])
-	plt.xlabel(feature1)
-	plt.ylabel(feature2)
-	plt.title(f'{feature1} vs {feature2} by Hogwarts House')
-	plt.legend()
-	plt.grid(True)
-	plt.show()
+    """
+    Generates scatter plots of numeric features from the input DataFrame,
+    displaying the relationships between the features for different
+    categories of "Hogwarts House".
+
+    :param df: The input DataFrame containing numeric data columns and a
+    categorical column "Hogwarts House".
+    :type df: pandas.DataFrame
+    :return: None
+    """
+    # Filter for numeric columns and ignore index
+    numeric_df = df.select_dtypes(include=['float64', 'int64']).drop(
+        columns=['Index'])
+    features = list(numeric_df.columns)
+
+    feature_labels = [get_abbreviation(f) for f in features]
+    label_to_feature = dict(zip(feature_labels, features))
+
+    num_features = len(features)
+
+    # Configure grid layout: 4 columns and rows based on feature count
+    num_plots = num_features - 1
+    num_cols = 4
+    num_rows = (num_plots + num_cols - 1) // num_cols
+
+    fig, axes_grid = plt.subplots(nrows=num_rows, ncols=num_cols,
+                                  figsize=(20, 4 * num_rows))
+    plt.subplots_adjust(left=0.15, hspace=0.4, wspace=0.3, bottom=0.05)
+    axes = axes_grid.flatten()
+
+    houses = df['Hogwarts House'].unique()
+    colors = {'Gryffindor': 'red', 'Slytherin': 'green',
+              'Hufflepuff': 'yellow', 'Ravenclaw': 'blue'}
+
+    # Radio buttons for interactive feature selection
+    rax = plt.axes([0.01, 0.4, 0.12, 0.5], facecolor='#f0f0f0')
+    radio = RadioButtons(rax, feature_labels)
+
+    def update(label):
+        """
+        Updates scatter plots for features of different Hogwarts houses.
+
+        :param label: The feature name selected to update the scatter plots.
+        :type label: str
+        :return: None
+        """
+        feature1 = label_to_feature[label]
+        other_features = [f for f in features if f != feature1]
+
+        # Iterate through subplot axes to update each scatter plot
+        for i, ax in enumerate(axes):
+            if i < len(other_features):
+                ax.clear()
+                feature2 = other_features[i]
+
+                # Calculate correlation on data for these features
+                subset = df[[feature1, feature2]].dropna()
+                if len(subset) > 1:
+                    correlation = pearson_corr(subset[feature1].tolist(),
+                                               subset[feature2].tolist())
+                else:
+                    correlation = 0.0
+
+                # Plot data for each house with its assigned color
+                for house in houses:
+                    house_data = df[df['Hogwarts House'] == house]
+                    ax.scatter(house_data[feature1], house_data[feature2],
+                               alpha=0.5, s=5, label=house,
+                               color=colors[house])
+
+                # Display the Pearson correlation coefficient calculated on
+                # subset
+                ax.set_title(
+                    f'{feature1} vs {feature2}\nCorr: {correlation:.4f}',
+                    fontsize=8)
+                ax.set_xlabel('', fontsize=7)
+                ax.set_ylabel('', fontsize=7)
+                ax.grid(True)
+                ax.set_visible(True)
+            else:
+                ax.set_visible(False)
+
+        plt.draw()
+
+    radio.on_clicked(update)
+
+    update(feature_labels[0])
+
+    plt.show()
+
 
 def calculate_correlation(df):
-	# Calculate the absolute correlation matrix between all numeric columns
-	correlation_matrix = df.corr(numeric_only=True).abs()
-	# Save the correlation matrix as a text file
-	with open("./data/correlation_matrix.txt", "w") as f:
-		f.write(correlation_matrix.to_string())
-	# "Unstack" the matrix to turn it into a Series of pairs: (feature1, feature2) -> correlation
-	corr_pairs = correlation_matrix.unstack()
-	# Sort correlation pairs in descending order using Quicksort
-	sorted_pairs = corr_pairs.sort_values(kind='quicksort', ascending=False)
-	# Remove self-correlations (where feature1 == feature2), which always equal 1.0
-	filtered_pairs = sorted_pairs[sorted_pairs < 1.0]
-	# Get the pair of features with the highest correlation
-	most_similar = filtered_pairs.idxmax()
-	highest_corr_value = filtered_pairs.max()
-	# Print the result
-	print(f"Most similar pair: {most_similar} with correlation {highest_corr_value:.2f}")
+    """
+    Calculate the pair of features with the highest absolute Pearson
+    correlation coefficient from the given DataFrame, ignoring the 'Index'
+    column.
+
+    :param df: The input pandas DataFrame containing data for analysis.
+               It must include numeric columns to compute correlations.
+    :type df: pandas.DataFrame
+    :return: None
+    """
+    # Filter numeric columns and drop unnecessary ones
+    numeric_df = df.select_dtypes(include=['float64', 'int64']).drop(
+        columns=['Index'])
+    features = list(numeric_df.columns)
+
+    best_pair = None
+    best_abs = -1.0
+    best_val = 0.0
+
+    # Iterates over unique feature pairs to find the most correlated pair
+    for i in range(len(features)):
+        for j in range(i + 1, len(features)):
+            f1, f2 = features[i], features[j]
+            r = pearson_corr(df[f1].tolist(), df[f2].tolist())
+            ar = abs(r)
+            # Find the best correlation (closest to 1 but not perfect 1.0)
+            if best_abs < ar < 1.0:
+                best_abs = ar
+                best_val = r
+                best_pair = (f1, f2)
+
+    if best_pair is not None:
+        print(
+            f"Most similar pair: {best_pair} with correlation {best_val:.2f}")
+    else:
+        print("Most similar pair: not found")
+
 
 def main():
-	df = pd.read_csv("./data/dataset_train.csv")
-	all_scatter_plot(df)
-	scatter_plot(df)
-	calculate_correlation(df)
+    """
+    Main entry point of the script. Loads data, displays the interactive
+    scatter plot, and calculates feature correlations.
+    """
+    df = open_file()
+    scatter_plot(df)
+    calculate_correlation(df)
+
 
 if __name__ == "__main__":
-	main()
+    main()

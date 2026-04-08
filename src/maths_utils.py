@@ -145,3 +145,35 @@ def percentile_(sorted_array, percent):
         return sorted_array[f]
     weight = k - f
     return sorted_array[f] + weight * (sorted_array[c] - sorted_array[f])
+
+
+def pearson_corr(series1, series2):
+    """
+    Calcule la corrélation de Pearson entre deux séries sans utiliser
+    pandas.DataFrame.corr ni d'autres méthodes de "heavy lifting".
+    Ignore les paires contenant des valeurs manquantes.
+    """
+    # Filtre pairwise les NaN
+    x_vals, y_vals = [], []
+    for x, y in zip(series1, series2):
+        if x is not None and y is not None:
+            # pandas peut donner des NaN de type float; on les élimine aussi
+            if x == x and y == y:  # test NaN (NaN != NaN)
+                x_vals.append(float(x))
+                y_vals.append(float(y))
+    n = len(x_vals)
+    if n < 2:
+        return 0.0
+    mx = mean_(x_vals)
+    my = mean_(y_vals)
+    # écart-types échantillonnaux (ddof=1) via std_
+    sx = std_(x_vals)
+    sy = std_(y_vals)
+    if sx is None or sy is None or sx == 0 or sy == 0:
+        return 0.0
+    # covariance échantillonnale
+    cov_sum = 0.0
+    for xi, yi in zip(x_vals, y_vals):
+        cov_sum += (xi - mx) * (yi - my)
+    cov = cov_sum / (n - 1)
+    return cov / (sx * sy)
