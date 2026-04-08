@@ -1,6 +1,6 @@
-from arg_checker import check_args
 from src import pd, np
-from src.utils import sum_, sort_, mean_, std_, min_, max_, percentile_
+from src.maths_utils import sum_, sort_, mean_, std_, min_, max_, percentile_
+from src.open_file import open_file
 
 
 def describe(dataset):
@@ -45,7 +45,7 @@ def main():
     Main entry point of the script that processes command-line arguments
     and describes a dataset.
     """
-    dataset = check_args()
+    dataset = open_file()
     describe(dataset)
 
 
