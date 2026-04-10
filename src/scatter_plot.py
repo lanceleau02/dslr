@@ -37,7 +37,14 @@ def scatter_plot(df):
 
     fig, axes_grid = plt.subplots(nrows=num_rows, ncols=num_cols,
                                   figsize=(20, 4 * num_rows))
-    plt.subplots_adjust(left=0.15, hspace=0.4, wspace=0.3, bottom=0.05)
+    plt.subplots_adjust(
+        left=0.18,  # keep space for radio buttons
+        right=0.99,  # remove right blank space
+        top=0.95,  # remove top blank space
+        bottom=0.05,  # remove bottom blank space
+        hspace=0.4,
+        wspace=0.3
+    )
     axes = axes_grid.flatten()
 
     houses = df['Hogwarts House'].unique()
@@ -45,8 +52,12 @@ def scatter_plot(df):
               'Hufflepuff': 'yellow', 'Ravenclaw': 'blue'}
 
     # Radio buttons for interactive feature selection
-    rax = plt.axes([0.01, 0.4, 0.12, 0.5], facecolor='#f0f0f0')
+    rax = plt.axes([0.01, 0.25, 0.12, 0.5], facecolor='#f0f0f0')
     radio = RadioButtons(rax, feature_labels)
+
+    # Select default feature to show (the most correlated)
+    best_f1, best_f2 = find_best_pair(df)
+    default_label = get_abbreviation(best_f1) if best_f1 else feature_labels[0]
 
     def update(label):
         """
@@ -96,9 +107,33 @@ def scatter_plot(df):
 
     radio.on_clicked(update)
 
-    update(feature_labels[0])
+    update(default_label)
 
     plt.show()
+
+
+def find_best_pair(df):
+    """
+    Finds the pair of features with the highest absolute Pearson correlation.
+    """
+    numeric_df = df.select_dtypes(include=['float64', 'int64']).drop(
+        columns=['Index'], errors='ignore')
+    features = list(numeric_df.columns)
+    if not features:
+        return None, None
+
+    best_pair = None
+    best_abs = -1.0
+
+    for i in range(len(features)):
+        for j in range(i + 1, len(features)):
+            f1, f2 = features[i], features[j]
+            r = pearson_corr(df[f1].tolist(), df[f2].tolist())
+            ar = abs(r)
+            if ar > best_abs:
+                best_abs = ar
+                best_pair = (f1, f2)
+    return best_pair
 
 
 def calculate_correlation(df):
@@ -130,8 +165,8 @@ def calculate_correlation(df):
             f1, f2 = features[i], features[j]
             r = pearson_corr(df[f1].tolist(), df[f2].tolist())
             ar = abs(r)
-            # Find the best correlation (closest to 1 but not perfect 1.0)
-            if best_abs < ar < 1.0:
+            # Find the best correlation (closest to 1)
+            if best_abs < ar:
                 best_abs = ar
                 best_val = r
                 best_pair = (f1, f2)
