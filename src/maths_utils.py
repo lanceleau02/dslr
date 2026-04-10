@@ -149,13 +149,20 @@ def percentile_(sorted_array, percent):
         greater than 1), the function returns None.
     :rtype: float or None
     """
+    # Return nothing for empty input
     if not sorted_array:
         return None
+
+    # Find the percentile position
     k = (len(sorted_array) - 1) * percent
     f = int(k)
     c = f + 1
+
+    # If it's the last element, return it directly
     if c >= len(sorted_array):
         return sorted_array[f]
+
+    # Interpolate between the two nearest values
     weight = k - f
     return sorted_array[f] + weight * (sorted_array[c] - sorted_array[f])
 
@@ -171,7 +178,7 @@ def pearson_corr(series1, series2):
         is not possible (e.g., less than 2 valid pairs or zero variance).
     :rtype: float
     """
-    # Filter pairwise NaNs
+    # Keep only valid number pairs
     x_vals, y_vals = [], []
     for x, y in zip(series1, series2):
         if x is not None and y is not None:
@@ -181,16 +188,22 @@ def pearson_corr(series1, series2):
     n = len(x_vals)
     if n < 2:
         return 0.0
+
+    # Compute mean and spread
     mx = mean_(x_vals)
     my = mean_(y_vals)
     sx = std_(x_vals)
     sy = std_(y_vals)
     if sx is None or sy is None or sx == 0 or sy == 0:
         return 0.0
+
+    # Compute covariance
     cov_sum = 0.0
     for xi, yi in zip(x_vals, y_vals):
         cov_sum += (xi - mx) * (yi - my)
     cov = cov_sum / (n - 1)
+
+    # Return normalized correlation
     return cov / (sx * sy)
 
 
