@@ -1,5 +1,5 @@
 from src import pd, np
-from src.maths_utils import (sum_, sort_, mean_, std_, min_, max_,
+from src.maths_utils import (sort_, mean_, std_, min_, max_,
                              percentile_, \
                              range_)
 from src.utils import open_file
@@ -21,24 +21,30 @@ def describe(dataset):
         if df[col].dtype not in [np.float64, np.int64]:
             continue
 
-        data = df[col].dropna().values
+        data_all = df[col]
+        data = data_all.dropna().values
 
-        n = sum_(1 for _ in data)
+        n = len(data)
+        total_count = len(data_all)
+        missing_count = total_count - n
+
         if n == 0:
             continue
 
         sorted_data = sort_(data)
 
         stats[col] = {
-            "Count": n,
-            "Mean":  mean_(data),
-            "Std":   std_(data),
-            "Min":   min_(data),
-            "25%":   percentile_(sorted_data, 0.25),
-            "50%":   percentile_(sorted_data, 0.50),
-            "75%":   percentile_(sorted_data, 0.75),
-            "Max":   max_(data),
-            "Range": range_(data),
+            "Count":          n,
+            "Mean":           mean_(data),
+            "Std":            std_(data),
+            "Min":            min_(data),
+            "25%":            percentile_(sorted_data, 0.25),
+            "50%":            percentile_(sorted_data, 0.50),
+            "75%":            percentile_(sorted_data, 0.75),
+            "Max":            max_(data),
+            "Range":          range_(data),
+            "Missing Values": missing_count,
+            "Missing %":      round(missing_count / total_count * 100, 2),
         }
     print(pd.DataFrame(stats))
 

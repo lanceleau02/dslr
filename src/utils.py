@@ -46,15 +46,15 @@ def get_abbreviation(name, max_len=12):
     return "".join(word[0].upper() for word in words)
 
 
-def check_file(file_name, drop_mv=False):
+def check_file(file_name, drop_na=False):
     """
     Checks if a given file can be read as a CSV file and handles possible
     errors.
 
     :param file_name: The path to the file that will be checked.
     :type file_name: str
-    :param drop_mv: If True, rows with missing values will be dropped.
-    :type drop_mv: bool
+    :param drop_na: If True, rows with missing values will be dropped.
+    :type drop_na: bool
     :return: The pandas DataFrame if the file is successfully read, or None
     if an
         error occurs during the file reading process.
@@ -80,7 +80,7 @@ def check_file(file_name, drop_mv=False):
         if missing_columns:
             print_error(f"Missing columns: {', '.join(missing_columns)}")
 
-        if drop_mv:
+        if drop_na:
             file = file.dropna(subset=required_columns)
 
         numeric_columns = file.select_dtypes(
@@ -89,7 +89,7 @@ def check_file(file_name, drop_mv=False):
                 len(numeric_columns) == 1 and 'Index' in numeric_columns):
             print_error("No numeric columns found for analysis")
 
-        if drop_mv:
+        if drop_na:
             other_numeric = [col for col in numeric_columns if col != 'Index']
             file = file.dropna(subset=other_numeric, how='all')
             if file.empty:
@@ -124,6 +124,6 @@ def open_file(filename=None, drop_na=False):
         check_args(args)
         filename = args[0]
 
-    file = check_file(filename, drop_mv=drop_na)
+    file = check_file(filename, drop_na=drop_na)
 
     return file
