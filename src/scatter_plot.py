@@ -38,10 +38,10 @@ def scatter_plot(df):
     fig, axes_grid = plt.subplots(nrows=num_rows, ncols=num_cols,
                                   figsize=(20, 4 * num_rows))
     plt.subplots_adjust(
-        left=0.18,  # keep space for radio buttons
-        right=0.99,  # remove right blank space
-        top=0.95,  # remove top blank space
-        bottom=0.05,  # remove bottom blank space
+        left=0.18,
+        right=0.99,
+        top=0.95,
+        bottom=0.05,
         hspace=0.4,
         wspace=0.3
     )
@@ -50,6 +50,11 @@ def scatter_plot(df):
     houses = df['Hogwarts House'].unique()
     colors = {'Gryffindor': 'red', 'Slytherin': 'green',
               'Hufflepuff': 'yellow', 'Ravenclaw': 'blue'}
+
+    # Select default feature to show (the most correlated)
+    best_f1, best_f2 = find_best_pair(df)
+    default_label = get_abbreviation(best_f1) if best_f1 else feature_labels[0]
+    default_index = feature_labels.index(default_label)
 
     # Radio buttons for interactive feature selection
     rax = plt.axes([0.01, 0.25, 0.12, 0.5], facecolor='#f0f0f0')
@@ -106,6 +111,7 @@ def scatter_plot(df):
         plt.draw()
 
     radio.on_clicked(update)
+    radio.set_active(default_index)
 
     update(default_label)
 
