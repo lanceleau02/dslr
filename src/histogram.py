@@ -2,7 +2,7 @@ import math
 
 import matplotlib.pyplot as plt
 
-from src.open_file import open_file
+from src.utils import open_file
 
 
 def plot_histogram(df, feature, ax):

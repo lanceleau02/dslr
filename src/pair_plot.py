@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.open_file import open_file
+from src.utils import open_file
 
 
 def pair_plot(data):

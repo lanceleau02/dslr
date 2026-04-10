@@ -2,8 +2,7 @@ from matplotlib.widgets import RadioButtons
 
 from src import plt
 from src.maths_utils import pearson_corr
-from src.open_file import open_file
-from src.utils import get_abbreviation
+from src.utils import get_abbreviation, open_file
 
 
 def scatter_plot(df):

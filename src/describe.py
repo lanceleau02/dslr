@@ -1,8 +1,8 @@
 from src import pd, np
 from src.maths_utils import (sum_, sort_, mean_, std_, min_, max_,
                              percentile_, \
-    range_)
-from src.open_file import open_file
+                             range_)
+from src.utils import open_file
 
 
 def describe(dataset):

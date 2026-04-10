@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 from src.maths_utils import sigmoid, compute_cost
-from src.open_file import open_file
+from src.utils import open_file
 
 
 def data_preprocessing(df):

@@ -4,8 +4,7 @@ import numpy as np
 import pandas as pd
 
 from src.maths_utils import sigmoid
-from src.open_file import open_file
-from src.utils import print_error
+from src.utils import print_error, open_file
 
 
 def preprocess_data(df, model):
