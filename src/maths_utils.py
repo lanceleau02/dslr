@@ -226,3 +226,36 @@ def sigmoid(z):
     z = np.clip(z, -500, 500)
     # Sigmoid formula
     return 1 / (1 + np.exp(-z))
+
+
+def compute_cost(X, y, theta):
+    """
+    Computes the cost function for logistic regression. This function
+    calculates the
+    binary cross-entropy loss based on the provided features, labels,
+    and parameters.
+
+    :param X: Design matrix with shape (m, n), where m is the number of
+    training examples and n
+              is the number of features.
+    :type X: numpy.ndarray
+
+    :param y: Vector of labels (binary) with shape (m,), where m is the
+    number of training
+              examples. Values must be either 0 or 1.
+    :type y: numpy.ndarray
+
+    :param theta: Vector of parameters with shape (n,), where n is the
+    number of features.
+                  Contains the weights for the logistic regression model.
+    :type theta: numpy.ndarray
+
+    :return: The computed cost (binary cross-entropy loss) as a scalar value.
+    :rtype: float
+    """
+    m = len(y)
+    z = np.dot(X, theta)
+    h = sigmoid(z)
+    epsilon = 1e-15
+    return -(1 / m) * np.sum(
+        y * np.log(h + epsilon) + (1 - y) * np.log(1 - h + epsilon))
