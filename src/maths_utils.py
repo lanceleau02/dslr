@@ -162,8 +162,7 @@ def percentile_(sorted_array, percent):
 
 def pearson_corr(series1, series2):
     """
-    Calculate the Pearson correlation coefficient between two series
-    without using pandas.DataFrame.corr or other high-level library methods.
+    Calculate the Pearson correlation coefficient between two series.
     Ignore pairs containing missing values.
 
     :param series1: The first series of numerical values.
