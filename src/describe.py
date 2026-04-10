@@ -1,5 +1,7 @@
 from src import pd, np
-from src.maths_utils import sum_, sort_, mean_, std_, min_, max_, percentile_
+from src.maths_utils import (sum_, sort_, mean_, std_, min_, max_,
+                             percentile_, \
+    range_)
 from src.open_file import open_file
 
 
@@ -35,7 +37,8 @@ def describe(dataset):
             "25%":   percentile_(sorted_data, 0.25),
             "50%":   percentile_(sorted_data, 0.50),
             "75%":   percentile_(sorted_data, 0.75),
-            "Max":   max_(data)
+            "Max":   max_(data),
+            "Range": range_(data),
         }
     print(pd.DataFrame(stats))
 

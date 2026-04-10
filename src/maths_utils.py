@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def sum_(iterable, start=0):
     """
     Calculate the sum of a sequence of numbers.
@@ -111,6 +114,22 @@ def max_(iterable):
     return current_max
 
 
+def range_(iterable):
+    """
+    Calculate the range of the given numeric dataset.
+
+    The range is defined as the difference between the maximum and minimum 
+    values in the dataset. The function expects an iterable of numeric 
+    values as input. The dataset must not be empty, and all elements within 
+    the dataset should be comparable.
+
+    :param iterable: An iterable of numeric values for which the range will
+        be calculated.
+    :return: The range of the dataset as a numeric value.
+    """
+    return max_(iterable) - min_(iterable)
+
+
 def percentile_(sorted_array, percent):
     """
     Computes the percentile value from a sorted array.
@@ -143,16 +162,21 @@ def percentile_(sorted_array, percent):
 
 def pearson_corr(series1, series2):
     """
-    Calcule la corrélation de Pearson entre deux séries sans utiliser
-    pandas.DataFrame.corr ni d'autres méthodes de "heavy lifting".
-    Ignore les paires contenant des valeurs manquantes.
+    Calculate the Pearson correlation coefficient between two series
+    without using pandas.DataFrame.corr or other high-level library methods.
+    Ignore pairs containing missing values.
+
+    :param series1: The first series of numerical values.
+    :param series2: The second series of numerical values.
+    :return: The Pearson correlation coefficient, or 0.0 if calculation
+        is not possible (e.g., less than 2 valid pairs or zero variance).
+    :rtype: float
     """
-    # Filtre pairwise les NaN
+    # Filter pairwise NaNs
     x_vals, y_vals = [], []
     for x, y in zip(series1, series2):
         if x is not None and y is not None:
-            # pandas peut donner des NaN de type float; on les élimine aussi
-            if x == x and y == y:  # test NaN (NaN != NaN)
+            if x == x and y == y:
                 x_vals.append(float(x))
                 y_vals.append(float(y))
     n = len(x_vals)
@@ -160,14 +184,33 @@ def pearson_corr(series1, series2):
         return 0.0
     mx = mean_(x_vals)
     my = mean_(y_vals)
-    # écart-types échantillonnaux (ddof=1) via std_
     sx = std_(x_vals)
     sy = std_(y_vals)
     if sx is None or sy is None or sx == 0 or sy == 0:
         return 0.0
-    # covariance échantillonnale
     cov_sum = 0.0
     for xi, yi in zip(x_vals, y_vals):
         cov_sum += (xi - mx) * (yi - my)
     cov = cov_sum / (n - 1)
     return cov / (sx * sy)
+
+
+def sigmoid(z):
+    """
+    Calculate the sigmoid function for the given input.
+
+    The sigmoid function is a mathematical function that maps any real-valued
+    number into the range (0, 1).
+
+    :param z: The input value or array-like structure for which the sigmoid
+    function
+        is to be calculated.
+    :type z: numpy.ndarray | float
+    :return: The calculated sigmoid value(s) for the input. If the input is an
+        array, the result will be an array of the same shape.
+    :rtype: numpy.ndarray | float
+    """
+    # Prevent overflow
+    z = np.clip(z, -500, 500)
+    # Sigmoid formula
+    return 1 / (1 + np.exp(-z))
